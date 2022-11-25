@@ -25,8 +25,8 @@ for k = 1:m-1
     L(counter,1:k-1) = row
 
     row = P(k,:)
-    P(k,:) = P(i,:)
-    P(i,:) = row
+    P(k,:) = P(counter,:)
+    P(counter,:) = row
 
     for j = k+1:m
         L(j,k) = U(j,k)/U(k,k)
