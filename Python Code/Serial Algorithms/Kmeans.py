@@ -39,6 +39,12 @@ class Kmeans:
         counter = 0
         deltaQ = 500000
         Q = 0
+        
+        #Finding Q
+        for i in range(k):
+            for j in self.Clusters_Ind[i]:
+                cxDist = data[j,:] - self.Centroids[i]
+                Q = Q + np.dot(cxDist,cxDist)
 
         # Beginning the loop of the algorithm
         while deltaQ > tol and counter < maxcount:
