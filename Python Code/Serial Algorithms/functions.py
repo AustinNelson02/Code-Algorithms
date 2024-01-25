@@ -26,6 +26,19 @@ def ex(epsilon,x,N):
         k = k+1
     return y
 
-print(factorial(10))
-print(e_x(2,5))
-print(ex(.04,5,100))
+def prime(N):
+    primes = [2]
+    length_primes = 1
+    for n in range(3,N,2):
+        for x in primes:
+            if n%x == 0:
+                break;
+        else:
+            length_primes = length_primes + 1
+            primes.append(n)
+    return primes
+
+#print(factorial(10))
+#print(e_x(2,5))
+#print(ex(.04,5,100))
+#print(prime(50))
