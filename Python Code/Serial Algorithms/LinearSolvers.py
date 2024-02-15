@@ -66,6 +66,32 @@ def householder_vector(x):
     
     return v,beta
 
+def SimpleQR(A):
+    m = len(A)
+    n = len(A[0])
+    R = np.zeros((n,n))
+    Q = np.zeros((m,n))
+
+    R[0,0] = np.norm(A[:,0:1])
+    Q[:,0:1] = A[:,0:1]/R[0,0]
+
+    for k in range(1,n):
+        vector_proj = np.zeros((m,1))
+        for i in range(0,k):
+            R[i,k] = np.matmul(np.transpose(Q[:,i:i+1]),A[:,k:k+1])
+            vector_proj = vector_proj + R[i,k] * Q[:,i:i+1]
+            residual = A[:,k:k+1] - vector_proj
+        R[k,k] = np.norm(residual)
+        Q[:,k:k+1] = residual/R[k,k]
+
+    return Q,R
+
+def LSQR(A,b):
+    [Q,R] = simpleQR(A)
+    b = np.matmul(np.transpose(Q),b)
+    x = backwardsub(R,b)
+
+    return x
 
 def forwardSub(L,b):
     n = len(L)
