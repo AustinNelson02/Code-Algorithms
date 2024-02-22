@@ -127,29 +127,10 @@ def QR(A,eps):
 
 def LSQR_eps(A,b):
     [Q,R,rank] = QR(A,.00001)
-    print("Q")
-    print(Q)
-    print("R")
-    print(R)
-    print("RT")
-    print(np.transpose(R))
     b = np.matmul(np.transpose(Q),b)
-    print(b)
     [Q1,R1,rank1] = QR(np.transpose(R),.00001)
-    print("Q1")
-    print(Q1)
-    print("R1")
-    print(R1)
-    print("Q1R1")
-    print(np.matmul(Q1,R1))
     z = forwardSub(np.transpose(R1),b)
-    print("z")
-    print(z)
-    print("RTz")
-    print(np.matmul(np.transpose(R1),z))
     x = np.matmul(Q1,z)
-    print("x")
-    print(x)
 
     return x
 
@@ -162,9 +143,11 @@ def forwardSub(L,b):
     z[0] = b[0] / L[0,0]
 
     for i in range(1,n):
-        total = np.matmul(L[i,:i-1],z[:i-1])
+        total = 0
 
-        z[i] = (b[i] - total) / L[i,i]
+        for j in range(i):
+            total = total + L[i,j]*z[j]
+        z[i] = (b[i] - total)/L[i,i]
 
     return z
 
