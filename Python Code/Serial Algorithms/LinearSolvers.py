@@ -39,6 +39,7 @@ def QR_Householder(Q):
             A[j+1:m,j] = v[1:m-j+1,0]
     
     return A,b
+
 #Computing the Householder Vector
 def householder_vector(x):
 
@@ -66,13 +67,14 @@ def householder_vector(x):
     
     return v,beta
 
+#Computing the Full QR factorization with Modified Gram-Schmidt
 def SimpleQR(A):
     m = len(A)
     n = len(A[0])
     R = np.zeros((n,n))
     Q = np.zeros((m,n))
 
-    R[0,0] = np.norm(A[:,0:1])
+    R[0,0] = np.linalg.norm(A[:,0:1])
     Q[:,0:1] = A[:,0:1]/R[0,0]
 
     for k in range(1,n):
@@ -81,23 +83,82 @@ def SimpleQR(A):
             R[i,k] = np.matmul(np.transpose(Q[:,i:i+1]),A[:,k:k+1])
             vector_proj = vector_proj + R[i,k] * Q[:,i:i+1]
             residual = A[:,k:k+1] - vector_proj
-        R[k,k] = np.norm(residual)
+        R[k,k] = np.linalg.norm(residual)
         Q[:,k:k+1] = residual/R[k,k]
 
     return Q,R
 
+#Computes the Least Squares Solution using MGS QR
 def LSQR(A,b):
-    [Q,R] = simpleQR(A)
+    [Q,R] = SimpleQR(A)
     b = np.matmul(np.transpose(Q),b)
-    x = backwardsub(R,b)
+    x = backwardSub(R,b)
 
     return x
 
+#Computes a rank revealing QR
+def QR(A,eps):
+    m = len(A)
+    n = len(A[0])
+    R = np.zeros((n,n))
+    Q = np.zeros((m,n))
+    rank = 0
+
+    for j in range(n):
+        vector_proj = np.zeros((m,1))
+
+        for i in range(rank):
+            vector_proj = vector_proj + R[i,j]*Q[:,i:i+1]
+
+        residual = A[:,j:j+1] - vector_proj
+        norm_residual = np.linalg.norm(residual)
+
+        if norm_residual > eps:
+            rank = rank + 1
+            R[rank-1,j] = norm_residual
+            Q[:,rank-1:rank] = residual / norm_residual
+
+            for k in range(j+1,n):
+                R[rank-1,k] = np.matmul(np.transpose(Q[:,rank-1:rank]),A[:,k:k+1])
+    Q = Q[:,0:rank]
+    R = R[0:rank,:]
+    
+    return Q,R,rank
+
+def LSQR_eps(A,b):
+    [Q,R,rank] = QR(A,.00001)
+    print("Q")
+    print(Q)
+    print("R")
+    print(R)
+    print("RT")
+    print(np.transpose(R))
+    b = np.matmul(np.transpose(Q),b)
+    print(b)
+    [Q1,R1,rank1] = QR(np.transpose(R),.00001)
+    print("Q1")
+    print(Q1)
+    print("R1")
+    print(R1)
+    print("Q1R1")
+    print(np.matmul(Q1,R1))
+    z = forwardSub(np.transpose(R1),b)
+    print("z")
+    print(z)
+    print("RTz")
+    print(np.matmul(np.transpose(R1),z))
+    x = np.matmul(Q1,z)
+    print("x")
+    print(x)
+
+    return x
+
+#Computes Forward Substitution for a given lower triangle matrix and a vector
 def forwardSub(L,b):
     n = len(L)
     m = len(L[0])
 
-    z = np.zeros([n,1])
+    z = np.zeros((n,1))
     z[0] = b[0] / L[0,0]
 
     for i in range(1,n):
@@ -107,6 +168,7 @@ def forwardSub(L,b):
 
     return z
 
+#Computes Backward Substitution for a given upper triangle matrix and a vector
 def backwardSub(U,b):
     n = len(U)
     m = len(U[0])
@@ -121,7 +183,3 @@ def backwardSub(U,b):
         z[i] = (b[i] - total) / U[i,i]
     return z
         
-
-
-
-
