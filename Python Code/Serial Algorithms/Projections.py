@@ -91,3 +91,6 @@ def dykstra(v,LP,maxk,tol):
         k = k + 1
 
         return X[:,[-1]]
+
+            
+
